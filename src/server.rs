@@ -1,6 +1,9 @@
 use std::io::Read;
+use crate::http::Request;
 use std::net::{TcpListener, TcpStream};
 use std::result::Result;
+use std::convert::TryFrom;
+use std::convert::TryInto;
 
 pub struct Server {
     address: String,
@@ -18,9 +21,12 @@ impl Server {
         for stream in listener.incoming() {
             match stream {
                 Ok(stream) => {
-                    handle_client(stream?);
+                    handle_client(stream);
                 }
-                Err(e) => { /* failed */}
+                Err(e) => {
+                    println!("Failed to read: {}", e);
+
+                    /* failed */}
 
             }
         }
@@ -34,6 +40,9 @@ fn handle_client(mut stream: TcpStream) {
     let mut buffer: [u8; 1024] = [0; 1024];
 
     stream.read( &mut buffer);
+
+    println!("Received a request: {}", String::from_utf8_lossy(&buffer));
+    Request::try_from(&buffer[..]);
     todo!();
 
 /*    'outer: loop {
