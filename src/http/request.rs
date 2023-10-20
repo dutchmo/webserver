@@ -3,11 +3,13 @@ use std::convert::TryFrom;
 use std::fmt::{Debug, Display, Formatter, Result as FmtResult};
 use std::str::{from_utf8, Utf8Error};
 use crate::http::method::MethodError;
+use crate::http::query_string::QueryString;
 use super::method::Method;
 
+#[derive(Debug)]
 pub struct Request<'buf> {
     pub(crate) path: &'buf str,
-    query_string: Option<&'buf str>,
+    query_string: Option<QueryString<'buf>>,
     method: Method,
 }
 
@@ -36,7 +38,7 @@ impl<'buf> TryFrom<&'buf [u8]> for Request<'buf> {
 
         let mut query_string = None;
         if let Some(i) = path.find('?') {
-            query_string = Some(&path[i + 1..]);
+            query_string = Some(QueryString::from(&path[i + 1..]));
             path = &path[..i];
         }
 
@@ -61,7 +63,7 @@ fn get_next_word2(request: &str) -> &str {
 }
 */
 
-fn get_next_word(request: &str) -> Option<(&str, &str)> {
+ fn get_next_word(request: &str) -> Option<(&str, &str)> {
     for (i, char) in request.chars().enumerate() {
         if char == ' ' || char == '\r' {
             return Some((&request[..i], &request[i + 1..]));

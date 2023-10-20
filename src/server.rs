@@ -44,7 +44,8 @@ fn handle_client(mut stream: TcpStream) {
     println!("Received a request: {}", String::from_utf8_lossy(&buffer));
     match Request::try_from(&buffer[..]) {
         Ok(request) => {
-            println!("Read request: {}", request.path)
+            dbg!(request);
+            // println!("Read request: {}", request.path)
         }
         Err(e) => println!("Failed to read from connection: {}", e)
 
