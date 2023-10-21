@@ -50,10 +50,10 @@ fn handle_client(mut stream: TcpStream) {
             // println!("Read request: {}", request.path)
         }
         Err(e) => {
-            println!("Failed to read from connection: {}", e)
+            println!("Failed to read from connection: {}", e);
             Response::new(StatusCode::BadRequest, None).send(&mut stream);
         }
-    }
+    };
 
 
 
