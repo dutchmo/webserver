@@ -2,8 +2,7 @@ use std::fmt::{Display, Formatter};
 
 #[derive(Copy, Clone, Debug)]
 pub enum StatusCode {
-
-    OK = 200,
+    Ok = 200,
     BadRequest = 400,
     NotFound = 404,
 }
@@ -14,13 +13,12 @@ impl StatusCode {
             Self::Ok => "Ok",
             Self::BadRequest => "Bad Request",
             Self::NotFound => "Not Found"
-
         }
-
     }
 }
 
 impl Display for StatusCode {
     fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
-write!(f, "{}", *self as u16)    }
+        write!(f, "{}", *self as u16)
+    }
 }
