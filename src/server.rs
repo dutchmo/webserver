@@ -1,5 +1,5 @@
-use std::io::Read;
-use crate::http::Request;
+use std::io::{Read, Write};
+use crate::http::{Request, Response, StatusCode};
 use std::net::{TcpListener, TcpStream};
 use std::result::Result;
 use std::convert::TryFrom;
@@ -42,13 +42,17 @@ fn handle_client(mut stream: TcpStream) {
     stream.read( &mut buffer);
 
     println!("Received a request: {}", String::from_utf8_lossy(&buffer));
-    match Request::try_from(&buffer[..]) {
+    let response = match Request::try_from(&buffer[..]) {
         Ok(request) => {
             dbg!(request);
+            let response = Response::new(StatusCode::Ok, Some("<h1> It works! </h1>".to_string()));
+            response.send(&mut stream);
             // println!("Read request: {}", request.path)
         }
-        Err(e) => println!("Failed to read from connection: {}", e)
-
+        Err(e) => {
+            println!("Failed to read from connection: {}", e)
+            Response::new(StatusCode::BadRequest, None).send(&mut stream);
+        }
     }
 
 
