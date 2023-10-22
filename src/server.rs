@@ -4,6 +4,18 @@ use std::net::{TcpListener, TcpStream};
 use std::result::Result;
 use std::convert::TryFrom;
 use std::convert::TryInto;
+use std::process;
+use std::process::ExitCode;
+
+
+pub trait Handler {
+        fn handle_request(&mut self, request: &Request) -> Response;
+
+    fn handle_bad_request(&mut self, e: &ParseError) -> Response {
+        println!("Failed to parse request: {}", e);
+        Response::new(StatusCode::BadRequest, None)
+    }
+}
 
 pub struct Server {
     address: String,
@@ -14,10 +26,18 @@ impl Server {
         Self { address }
     }
 
-    pub fn run(self) -> std::io::Result<()>{
+    pub fn run(self, mut handler: impl Handler) -> ExitCode {
         println!("Server is listening.. {}", self.address);
 
-        let listener = TcpListener::bind(&self.address).unwrap();
+        let listener  = match TcpListener::bind(&self.address) {
+            Ok(listener) => listener,
+            Err(e) => {
+                println!("Failed to start server: {}", e);
+                // process::exit(-1);
+                return ExitCode::from(1);
+            }
+        };
+
         for stream in listener.incoming() {
             match stream {
                 Ok(stream) => {
@@ -25,13 +45,10 @@ impl Server {
                 }
                 Err(e) => {
                     println!("Failed to read: {}", e);
-
                     /* failed */}
-
             }
         }
-
-        return Ok(())
+        return ExitCode::from(0);
     }
 }
 
